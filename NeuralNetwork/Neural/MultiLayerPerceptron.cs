@@ -61,8 +61,8 @@ namespace NeuralNetwork.Neural
             sb.Append("Нейронная сеть с параметрами:"+Environment.NewLine
                 +"Количество входных параметров: " + InputCount + Environment.NewLine);
             sb.Append("Количество выходных параметров: " + OutCount + Environment.NewLine);
-            sb.Append("Количество слоёв: " + HiddenNeuronCount + Environment.NewLine);
-            sb.Append("Количество нейронов в скрытых слоях: " + HiddenLayerCount + Environment.NewLine);
+            sb.Append("Количество слоёв: " + HiddenLayerCount  + Environment.NewLine);
+            sb.Append("Количество нейронов в скрытых слоях: " + HiddenNeuronCount + Environment.NewLine);
             foreach(var l in LayerArray)
             {
                 sb.Append(l.WeightMatrix.Print());
