@@ -9,6 +9,8 @@ namespace NeuralNetwork.Neural
         //Количество входных/выходных параметров
         public int InputCount;
         public int OutCount;
+        public int HiddenNeuronCount;
+        public int HiddenLayerCount;
         //Массив слоёв сети
         public Layer[] LayerArray;
 
@@ -32,6 +34,8 @@ namespace NeuralNetwork.Neural
         {
             InputCount = inCount;
             OutCount = outCount;
+            HiddenNeuronCount = neuronCount;
+            HiddenLayerCount = hiddenLayersCount;
             LayerArray = new Layer[hiddenLayersCount+1];
             //Первый слой отличается количеством весов, инициализируем его отдельно
             LayerArray[0] = new Layer(neuronCount, inCount);
@@ -48,6 +52,24 @@ namespace NeuralNetwork.Neural
             {
                 LayerArray[i].FillRandomly();
             }
+        }
+
+
+        public string PrintNet()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Нейронная сеть с параметрами:"+Environment.NewLine
+                +"Количество входных параметров: " + InputCount + Environment.NewLine);
+            sb.Append("Количество выходных параметров: " + OutCount + Environment.NewLine);
+            sb.Append("Количество слоёв: " + HiddenNeuronCount + Environment.NewLine);
+            sb.Append("Количество нейронов в скрытых слоях: " + HiddenLayerCount + Environment.NewLine);
+            foreach(var l in LayerArray)
+            {
+                sb.Append(l.WeightMatrix.Print());
+            }
+
+            return sb.ToString();
+
         }
     }
 }

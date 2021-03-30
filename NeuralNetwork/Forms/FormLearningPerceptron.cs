@@ -15,9 +15,14 @@ namespace NeuralNetwork.Forms
 
     public partial class FormLearningPerceptron : Form
     {
+        public FormLearningPerceptron(int inC, int outC, int hiddenLC, int neuronC)
+        {
+            perceptron = new MultiLayerPerceptron(inC, outC, hiddenLC, neuronC);
+            InitializeComponent();
+        }
+        
         public FormLearningPerceptron()
         {
-            perceptron = new MultiLayerPerceptron(2, 2, 3, 3);
             InitializeComponent();
         }
 
@@ -51,6 +56,11 @@ namespace NeuralNetwork.Forms
 
 
         MultiLayerPerceptron perceptron;
+
+        private void FormLearningPerceptron_Load(object sender, EventArgs e)
+        {
+            textBox2.Text = perceptron.PrintNet();
+        }
     }
 
 

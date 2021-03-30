@@ -56,7 +56,7 @@ namespace NeuralNetwork.Forms
             // 
             // buttonCustomValues
             // 
-            this.buttonCustomValues.Location = new System.Drawing.Point(12, 307);
+            this.buttonCustomValues.Location = new System.Drawing.Point(12, 353);
             this.buttonCustomValues.Name = "buttonCustomValues";
             this.buttonCustomValues.Size = new System.Drawing.Size(157, 29);
             this.buttonCustomValues.TabIndex = 2;
@@ -66,7 +66,7 @@ namespace NeuralNetwork.Forms
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(175, 311);
+            this.textBox1.Location = new System.Drawing.Point(175, 359);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(334, 23);
             this.textBox1.TabIndex = 3;
@@ -76,14 +76,15 @@ namespace NeuralNetwork.Forms
             this.textBox2.Location = new System.Drawing.Point(12, 47);
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(497, 254);
+            this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBox2.Size = new System.Drawing.Size(497, 300);
             this.textBox2.TabIndex = 4;
             // 
             // FormLearningPerceptron
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(521, 348);
+            this.ClientSize = new System.Drawing.Size(521, 394);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.buttonCustomValues);
@@ -91,6 +92,7 @@ namespace NeuralNetwork.Forms
             this.Controls.Add(this.buttonLoadTeachTable);
             this.Name = "FormLearningPerceptron";
             this.Text = "FormLearningPerceptron";
+            this.Load += new System.EventHandler(this.FormLearningPerceptron_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

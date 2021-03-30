@@ -103,5 +103,22 @@ namespace NeuralNetwork.Neural
             this.n = n;
             this.data = new double[m, n];
         }
+
+
+        public string Print()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("::::::::::::::::::" + Environment.NewLine);
+            for (int i = 0; i < M; i++)
+            {
+                for (int j = 0; j < N; j++)
+                {
+                    sb.Append($"{data[i,j]:f3}   ");                    
+                }
+                sb.Append(Environment.NewLine);
+            }
+            sb.Append(":::::::::::::::::::" + Environment.NewLine);
+            return sb.ToString();
+        }
     }
 }

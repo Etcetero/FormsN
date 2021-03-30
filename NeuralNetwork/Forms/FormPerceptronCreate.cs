@@ -18,7 +18,12 @@ namespace NeuralNetwork.Forms
 
         private void buttonCreatePerceptro_Click(object sender, EventArgs e)
         {
-            FormLearningPerceptron form = new FormLearningPerceptron();
+            FormLearningPerceptron form = new FormLearningPerceptron(
+                Convert.ToInt32(numericUpDown4.Value),
+                Convert.ToInt32(numericUpDown5.Value),
+                Convert.ToInt32(numericUpDown2.Value),
+                Convert.ToInt32(numericUpDown3.Value)
+                );
             form.Show();
         }
     }
