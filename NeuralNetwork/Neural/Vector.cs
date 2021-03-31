@@ -51,5 +51,14 @@ namespace NeuralNetwork.Neural
            
             this.data = new double[m];
         }
+        public Vector(params double[] values)
+        {
+            m = values.Length;
+            data = new double[m];
+            for(int i = 0; i < m; i++)
+            {
+                data[i] = values[i];
+            }
+        }
     }
 }

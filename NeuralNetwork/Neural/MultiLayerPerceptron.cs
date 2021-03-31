@@ -11,8 +11,11 @@ namespace NeuralNetwork.Neural
         public int OutCount;
         public int HiddenNeuronCount;
         public int HiddenLayerCount;
+
+        double error;
         //Массив слоёв сети
         public Layer[] LayerArray;
+        public Vector[] localGradients;
 
 
         //Прямой проход сети
@@ -22,11 +25,91 @@ namespace NeuralNetwork.Neural
             LayerArray[0].SigmoidalActivate(InputSygnals);
             for(int i = 1; i< LayerArray.Length; i++)
             {
-                LayerArray[i].SigmoidalActivate(LayerArray[i - 1].OutputSygnals);
+                LayerArray[i].SigmoidalActivate(LayerArray[i - 1].OutputSygnals);                
             }
             return LayerArray[LayerArray.Length - 1].OutputSygnals;
         }
 
+        //Обратный проход
+        public void Backward(Vector output, ref double error)
+        {
+            error = 0;
+            //Вычисление среднеквадратичной ошибки
+            for(int i = 0; i < output.M; i++)
+            {
+                double e = LayerArray[HiddenLayerCount].OutputSygnals[i] - output[i];
+                localGradients[HiddenLayerCount][i] = e * LayerArray[HiddenLayerCount].dOutputSygnals[i];
+                error += e * e / 2; 
+            }
+            //Вычисление локальных градиентов
+            for(int l = HiddenLayerCount; l > 0; l--)
+            {
+                //for(int i = 0; i < LayerArray[k].WeightMatrix.M; i++)
+                //{
+                //    localGradients[k-1][i] = 0;
+                //    for (int j = 0; j < LayerArray[k].WeightMatrix.N; j++)
+                //    {
+                //        localGradients[k - 1][i] += LayerArray[k].WeightMatrix[i, j] * localGradients[k][i];
+                //    }
+                //    localGradients[k-1][i] *= LayerArray[k-1].dOutputSygnals[i];
+                //}
+                for(int j = 0; j < LayerArray[l].WeightMatrix.N; j++)
+                {
+                    localGradients[l - 1][j] = 0;
+                    for (int k = 0; k < LayerArray[l].WeightMatrix.M; k++)
+                    {
+                        localGradients[l - 1][j] += localGradients[l][k] * LayerArray[l].WeightMatrix[k, j];
+                    }
+                    localGradients[l - 1][j] *= LayerArray[l - 1].dOutputSygnals[j];
+                }
+            }
+        }
+
+        public void UpdateWeights(double alpha, double teta, Vector Input)
+        {
+
+            for (int i = 0; i < LayerArray[0].WeightMatrix.N; i++)
+            {
+                for (int j = 0; j < LayerArray[0].WeightMatrix.M; j++)
+                {
+                    //LayerArray[0].WeightMatrix[j, i] =
+                    //        LayerArray[0].WeightMatrix[j, i] +
+                    //        teta * localGradients[0][j] * Input[i];
+                    LayerArray[0].WeightMatrix[j, i] -= teta * localGradients[0][j] * Input[i];
+                }
+            }
+
+            for (int k = 1; k <= HiddenLayerCount; k++)
+            {
+                for(int i = 0; i < LayerArray[k].WeightMatrix.N; i++)
+                {
+                    for (int j = 0; j < LayerArray[k].WeightMatrix.M; j++)
+                    {
+                        //LayerArray[k].WeightMatrix[j, i] =
+                        //        LayerArray[k].WeightMatrix[j, i] +
+                        //        teta * localGradients[k][j] * LayerArray[k-1].OutputSygnals[i];
+                        LayerArray[k].WeightMatrix[j, i] -= teta * localGradients[k][j] * LayerArray[k-1].OutputSygnals[i];
+                    }
+                }
+            }
+        }
+
+        
+        public void Train(Vector[] X, Vector[] Y, double alpha, double teta, double epsilon, int epochs)
+        {
+            int epoch = 1;
+            double error = 0;
+            do
+            {
+                for(int i = 0; i < X.Length; i++)
+                {
+                    Forward(X[i]);
+                    Backward(Y[i], ref error);
+                    UpdateWeights(0, teta, X[i]);
+                }
+                epoch++;
+            } while (epoch <= epochs && error > epsilon);
+        }
 
 
         //Конструктор
@@ -37,18 +120,21 @@ namespace NeuralNetwork.Neural
             HiddenNeuronCount = neuronCount;
             HiddenLayerCount = hiddenLayersCount;
             LayerArray = new Layer[hiddenLayersCount+1];
+            localGradients = new Vector[hiddenLayersCount + 1];
             //Первый слой отличается количеством весов, инициализируем его отдельно
             LayerArray[0] = new Layer(neuronCount, inCount);
+            localGradients[0] = new Vector(neuronCount);
             //Инициализация слоёв
             for(int i = 1; i < hiddenLayersCount; i++)
             {
                 LayerArray[i] = new Layer(neuronCount, neuronCount);
+                localGradients[i] = new Vector(neuronCount);
             }
             //Последний слой также отличается количеством нейронов
             LayerArray[hiddenLayersCount] = new Layer(outCount, neuronCount);
-
+            localGradients[hiddenLayersCount] = new Vector(neuronCount);
             //Рандомно заполняем все веса всех слоев
-            for(int i = 0; i <= hiddenLayersCount; i++)
+            for (int i = 0; i <= hiddenLayersCount; i++)
             {
                 LayerArray[i].FillRandomly();
             }

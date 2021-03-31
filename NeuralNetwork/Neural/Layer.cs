@@ -10,6 +10,7 @@ namespace NeuralNetwork.Neural
         public Matrix WeightMatrix;
         //Выходные сигналы этого слоя
         public Vector OutputSygnals;
+        public Vector dOutputSygnals;
         //Функция для получения значений на выходах слоя
         public Vector SigmoidalActivate(Vector inputSygnals)
         {
@@ -17,7 +18,12 @@ namespace NeuralNetwork.Neural
             for (int i = 0; i < OutputSygnals.M; i++)
             {
                 OutputSygnals[i] = 1 / (1 + Math.Exp(-OutputSygnals[i]));
+
+                //doutputs - производные от выходов слоя
+                dOutputSygnals[i] = OutputSygnals[i] * (1 - OutputSygnals[i]);
             }
+
+            
             return OutputSygnals;
         }
 
@@ -26,6 +32,7 @@ namespace NeuralNetwork.Neural
         public Layer(int NeuronCount, int prevCount)
         {
             OutputSygnals = new Vector(NeuronCount);
+            dOutputSygnals = new Vector(NeuronCount);
             WeightMatrix = new Matrix(NeuronCount, prevCount);
         }
 
