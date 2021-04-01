@@ -7,61 +7,32 @@ using System.Text;
 using System.Windows.Forms;
 using System.Linq;
 using NeuralNetwork.Neural;
-
-
+using System.Threading.Tasks;
+using System.IO;
+using OfficeOpenXml;
+using System.Threading;
 
 namespace NeuralNetwork.Forms
 {
 
     public partial class FormLearningPerceptron : Form
     {
+        int inCount;
+        int outCount;
+        int hiddenLayerCount;
+        int neuronCount;
+        Vector[] X;
+        Vector[] Y;
         public FormLearningPerceptron(int inC, int outC, int hiddenLC, int neuronC)
         {
-            //Vector[] X = {
-            //    new Vector(0, 0),
-            //    new Vector(0, 1),
-            //    new Vector(1, 0),
-            //    new Vector(1, 1)
-            //};
+            inCount = inC;
+            outCount = outC;
+            hiddenLayerCount = hiddenLC;
+            neuronCount = neuronC;
 
-            //// массив выходных обучающих векторов
-            //Vector[] Y = {
-            //    new Vector(0.0), // 0 ^ 0 = 0
-            //    new Vector(1.0), // 0 ^ 1 = 1
-            //    new Vector(1.0), // 1 ^ 0 = 1
-            //    new Vector(0.0) // 1 ^ 1 = 0
-            //};
-
-            Vector[] X = {
-                 new Vector(0.136363636, 0.136363636),
-                 new Vector(0.154545455, 0.154545455),
-                 new Vector(0.172727273, 0.172727273),
-                 new Vector(0.190909091, 0.190909091),
-                 new Vector(0.209090909, 0.209090909),
-                 new Vector(0.227272727, 0.227272727),
-                 new Vector(0.245454545, 0.245454545),
-                 new Vector(0.263636364, 0.263636364),
-                 new Vector(0.281818182, 0.281818182),
-                 new Vector(0.3 ,        0.3),
-                 new Vector(0.318181818, 0.318181818)
-            };
-
-            Vector[] Y = {
-                new Vector(0.0), // 0 ^ 0 = 0
-                new Vector(0.1), // 0 ^ 1 = 1
-                new Vector(0.2), // 1 ^ 0 = 1
-                new Vector(0.3), // 1 ^ 1 = 0
-                new Vector(0.4), // 0 ^ 0 = 0
-                new Vector(0.5), // 0 ^ 1 = 1
-                new Vector(0.6), // 1 ^ 0 = 1
-                new Vector(0.7),
-                new Vector(0.8), // 0 ^ 0 = 0
-                new Vector(0.9), // 0 ^ 1 = 1
-                new Vector(1.0)
-            };
             //perceptron = new MultiLayerPerceptron(2, 1, 4, 3);
-            perceptron = new MultiLayerPerceptron(inC, outC, hiddenLC, neuronC);
-            perceptron.Train(X, Y, 0.1f, 0.1f, 0.0005f, 10000000);
+            //perceptron = new MultiLayerPerceptron(inC, outC, hiddenLC, neuronC);
+            //perceptron.Train(X, Y, 0.5f, 0.5f, 0.005f, 10000000);
             InitializeComponent();
         }
 
@@ -103,8 +74,71 @@ namespace NeuralNetwork.Forms
 
         private void FormLearningPerceptron_Load(object sender, EventArgs e)
         {
-            textBox2.Text = perceptron.PrintNet();
+            //textBox2.Text = perceptron.PrintNet();
         }
+
+        private void buttonStartLearning_Click(object sender, EventArgs e)
+        {
+            perceptron = new MultiLayerPerceptron(inCount, outCount, hiddenLayerCount, neuronCount);
+            
+            double teta = Convert.ToDouble(numericUpDown1.Value);
+            double epsilon = Convert.ToDouble(numericUpDown2.Value);
+            var tempo = perceptron.Train(Inputs, teta, teta, epsilon, 100000);
+            int i = 0;
+            foreach (var x in tempo)
+            {
+                
+                textBox2.Text += "Эпоха: " + (++i) + "; Среднекв. ошибка: " + x.ToString() + "\r\n";
+            }
+            textBox2.Text += perceptron.PrintNet();
+
+        }
+        private void func()
+        {
+            
+            
+        }
+
+        private void buttonLoadTeachTable_Click(object sender, EventArgs e)
+        {
+            //Открытие файла
+            OpenFileDialog OPF = new OpenFileDialog();
+            if (OPF.ShowDialog() == DialogResult.OK)
+            {
+                FileInfo file = new FileInfo(OPF.FileName);
+                using(ExcelPackage excelPackage = new ExcelPackage(file))
+                {
+                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                    ExcelWorksheet workSheet = excelPackage.Workbook.Worksheets[0];
+                    int rowCount =    workSheet.Dimension.Rows;
+                    int columnCount = workSheet.Dimension.Columns;
+                    Inputs = new VectorPair[rowCount-1];
+                    for(int i = 0; i < rowCount-1; i++)
+                    {
+                        double[] values = new double[columnCount];
+                        for(int j = 0; j < columnCount; j++)
+                        {
+                            values[j] = Convert.ToDouble(workSheet.Cells[i+2, j+1].Value.ToString());
+                        }
+                        Inputs[i].X = new Vector(inCount);
+                        Inputs[i].Y = new Vector(outCount);
+                        for (int k = 0; k < inCount; k++)
+                        {
+                            Inputs[i].X[k] = values[k];
+                        }
+                        for(int k = inCount; k < outCount+inCount; k++)
+                        {
+                            Inputs[i].Y[k - inCount] = values[k];
+                        }
+                    }
+                }
+            }
+        }
+
+        VectorPair[] Inputs;
+        
+
+       
     }
 
 

@@ -33,26 +33,18 @@ namespace NeuralNetwork.Neural
         //Обратный проход
         public void Backward(Vector output, ref double error)
         {
-            error = 0;
+
             //Вычисление среднеквадратичной ошибки
-            for(int i = 0; i < output.M; i++)
+            error = 0;
+            for (int i = 0; i < output.M; i++)
             {
                 double e = LayerArray[HiddenLayerCount].OutputSygnals[i] - output[i];
                 localGradients[HiddenLayerCount][i] = e * LayerArray[HiddenLayerCount].dOutputSygnals[i];
-                error += e * e / 2; 
+                error += e * e / 2;
             }
             //Вычисление локальных градиентов
-            for(int l = HiddenLayerCount; l > 0; l--)
-            {
-                //for(int i = 0; i < LayerArray[k].WeightMatrix.M; i++)
-                //{
-                //    localGradients[k-1][i] = 0;
-                //    for (int j = 0; j < LayerArray[k].WeightMatrix.N; j++)
-                //    {
-                //        localGradients[k - 1][i] += LayerArray[k].WeightMatrix[i, j] * localGradients[k][i];
-                //    }
-                //    localGradients[k-1][i] *= LayerArray[k-1].dOutputSygnals[i];
-                //}
+            for (int l = HiddenLayerCount; l > 0; l--)
+            {                
                 for(int j = 0; j < LayerArray[l].WeightMatrix.N; j++)
                 {
                     localGradients[l - 1][j] = 0;
@@ -63,6 +55,7 @@ namespace NeuralNetwork.Neural
                     localGradients[l - 1][j] *= LayerArray[l - 1].dOutputSygnals[j];
                 }
             }
+            
         }
 
         public void UpdateWeights(double alpha, double teta, Vector Input)
@@ -95,19 +88,39 @@ namespace NeuralNetwork.Neural
         }
 
         
-        public void Train(Vector[] X, Vector[] Y, double alpha, double teta, double epsilon, int epochs)
+        
+
+        public IEnumerable<double> Train(Vector[] X, Vector[] Y, double alpha, double teta, double epsilon, int epochs)
         {
             int epoch = 1;
             double error = 0;
             do
             {
-                for(int i = 0; i < X.Length; i++)
+                for (int i = 0; i < X.Length; i++)
                 {
                     Forward(X[i]);
                     Backward(Y[i], ref error);
                     UpdateWeights(0, teta, X[i]);
                 }
                 epoch++;
+                yield return error;
+            } while (epoch <= epochs && error > epsilon);
+        }
+
+        public IEnumerable<double> Train(VectorPair[] XY, double alpha, double teta, double epsilon, int epochs)
+        {
+            int epoch = 1;
+            double error = 0;
+            do
+            {
+                for (int i = 0; i < XY.Length; i++)
+                {
+                    Forward(XY[i].X);
+                    Backward(XY[i].Y, ref error);
+                    UpdateWeights(0, teta, XY[i].X);
+                }
+                epoch++;
+                yield return error;
             } while (epoch <= epochs && error > epsilon);
         }
 
