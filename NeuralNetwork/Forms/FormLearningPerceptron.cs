@@ -21,8 +21,10 @@ namespace NeuralNetwork.Forms
         int outCount;
         int hiddenLayerCount;
         int neuronCount;
-        Vector[] X;
-        Vector[] Y;
+        Vector Xmins;
+        Vector Ymins;
+        Vector Xmaxs;
+        Vector Ymaxs;
         VectorPair[] Inputs;
         public FormLearningPerceptron(int inC, int outC, int hiddenLC, int neuronC)
         {
@@ -30,10 +32,14 @@ namespace NeuralNetwork.Forms
             outCount = outC;
             hiddenLayerCount = hiddenLC;
             neuronCount = neuronC;
-
+            Xmins = new Vector(inC);
+            Xmaxs = new Vector(inC);
+            Ymins = new Vector(outC);
+            Ymaxs = new Vector(outC);
             //perceptron = new MultiLayerPerceptron(2, 1, 4, 3);
             //perceptron = new MultiLayerPerceptron(inC, outC, hiddenLC, neuronC);
             //perceptron.Train(X, Y, 0.5f, 0.5f, 0.005f, 10000000);
+            perceptron = new MultiLayerPerceptron(inCount, outCount, hiddenLayerCount, neuronCount);
             InitializeComponent();
         }
 
@@ -52,10 +58,11 @@ namespace NeuralNetwork.Forms
             {
                 Input[i] = values[i];
             }
-
+            //Нормализация входных данных
+            NormalizeVector(Input, Xmins, Xmaxs);
             //Делаем прямой проход сети
             Vector output = perceptron.Forward(Input);
-
+            DeNormalizeVector(output, Ymins, Ymaxs);
             //Это для вывода ответа
             StringBuilder sbuilder = new StringBuilder();
             for (int i = 0; i < output.M; i++)
@@ -80,15 +87,14 @@ namespace NeuralNetwork.Forms
 
         private void buttonStartLearning_Click(object sender, EventArgs e)
         {
-            perceptron = new MultiLayerPerceptron(inCount, outCount, hiddenLayerCount, neuronCount);
+            
             
             double teta = Convert.ToDouble(numericUpDown1.Value);
             double epsilon = Convert.ToDouble(numericUpDown2.Value);
-            var tempo = perceptron.Train(Inputs, teta, teta, epsilon, 100000);
+            var tempo = perceptron.Train(Inputs, teta, teta, epsilon, 1000);
             int i = 0;
             foreach (var x in tempo)
-            {
-                
+            {                
                 textBox2.Text += "Эпоха: " + (++i) + "; Среднекв. ошибка: " + x.ToString() + "\r\n";
             }
             textBox2.Text += perceptron.PrintNet();
@@ -138,6 +144,7 @@ namespace NeuralNetwork.Forms
 
                     GetMaxMin();
                     NormalizeInputTable();
+                    ;
                 }
             }
         }
@@ -146,12 +153,12 @@ namespace NeuralNetwork.Forms
         {
             //Следующий блок вычисляет минимальные и максимальные элементы столбцов
             // и добавляет в конец массива
-            Inputs[Inputs.Length - 2] = new VectorPair();
-            Inputs[Inputs.Length - 1] = new VectorPair();
-            Inputs[Inputs.Length - 2].X = new Vector(inCount);
-            Inputs[Inputs.Length - 1].X = new Vector(inCount);
-            Inputs[Inputs.Length - 2].Y = new Vector(outCount);
-            Inputs[Inputs.Length - 1].Y = new Vector(outCount);
+            //Inputs[Inputs.Length - 2] = new VectorPair();
+            //Inputs[Inputs.Length - 1] = new VectorPair();
+            //Inputs[Inputs.Length - 2].X = new Vector(inCount);
+            //Inputs[Inputs.Length - 1].X = new Vector(inCount);
+            //Inputs[Inputs.Length - 2].Y = new Vector(outCount);
+            //Inputs[Inputs.Length - 1].Y = new Vector(outCount);
             for (int i = 0; i < Inputs[0].X.M; i++)
             {
                 double min = Inputs[0].X[i];
@@ -176,27 +183,36 @@ namespace NeuralNetwork.Forms
                 Inputs[Inputs.Length - 1].Y[i] = max;
                 Inputs[Inputs.Length - 2].Y[i] = min;
             }
+            Xmins = Inputs[Inputs.Length - 2].X;
+            Xmaxs = Inputs[Inputs.Length - 1].X;
+
+            Ymins = Inputs[Inputs.Length - 2].Y;
+            Ymaxs = Inputs[Inputs.Length - 1].Y;
+
         }
 
         private void NormalizeInputTable()
         {
             for(int k = 0; k < Inputs.Length-2; k++)
-            {
-                for(int i = 0; i < Inputs[k].X.M; i++)
-                {
-                    Inputs[k].X[i] = (Inputs[k].X[i] - Inputs[Inputs.Length - 2].X[i]) /
-                                        (Inputs[Inputs.Length - 1].X[i] - Inputs[Inputs.Length - 2].X[i]);
-                }
-            }
-            for (int k = 0; k < Inputs.Length-2 ; k++)
-            {
-                for (int i = 0; i < Inputs[k].Y.M; i++)
-                {
-                    Inputs[k].Y[i] = (Inputs[k].Y[i] - Inputs[Inputs.Length - 2].Y[i]) /
-                                        (Inputs[Inputs.Length - 1].Y[i] - Inputs[Inputs.Length - 2].Y[i]);
-                }
+            {                
+                NormalizeVector(Inputs[k].X, Xmins, Xmaxs);
+                NormalizeVector(Inputs[k].Y, Ymins, Ymaxs);
             }
             
+        }
+        private void NormalizeVector(Vector inX, Vector Xmin, Vector Xmax)
+        {
+            for(int i = 0; i < inX.M; i++)
+            {
+                inX[i] = (inX[i] - Xmin[i]) / (Xmax[i] - Xmin[i]);
+            }
+        }
+        private void DeNormalizeVector(Vector inX, Vector Xmin, Vector Xmax)
+        {
+            for(int i = 0; i < inX.M; i++)
+            {
+                inX[i] = (Xmax[i] - Xmin[i]) * inX[i] + Xmin[i];
+            }
         }
         
 
