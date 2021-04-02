@@ -91,7 +91,7 @@ namespace NeuralNetwork.Forms
             
             double teta = Convert.ToDouble(numericUpDown1.Value);
             double epsilon = Convert.ToDouble(numericUpDown2.Value);
-            var tempo = perceptron.Train(Inputs, teta, teta, epsilon, 1000);
+            var tempo = perceptron.Train(Inputs, teta, teta, epsilon, 10000);
             int i = 0;
             foreach (var x in tempo)
             {                
@@ -121,7 +121,7 @@ namespace NeuralNetwork.Forms
                     int rowCount =    workSheet.Dimension.Rows;
                     int columnCount = workSheet.Dimension.Columns;
 
-                    Inputs = new VectorPair[rowCount+1];
+                    Inputs = new VectorPair[rowCount-1];
 
                     for(int i = 0; i < rowCount-1; i++)
                     {
@@ -151,49 +151,38 @@ namespace NeuralNetwork.Forms
 
         private void GetMaxMin()
         {
-            //Следующий блок вычисляет минимальные и максимальные элементы столбцов
-            // и добавляет в конец массива
-            //Inputs[Inputs.Length - 2] = new VectorPair();
-            //Inputs[Inputs.Length - 1] = new VectorPair();
-            //Inputs[Inputs.Length - 2].X = new Vector(inCount);
-            //Inputs[Inputs.Length - 1].X = new Vector(inCount);
-            //Inputs[Inputs.Length - 2].Y = new Vector(outCount);
-            //Inputs[Inputs.Length - 1].Y = new Vector(outCount);
+            //Следующий блок вычисляет минимальные и максимальные элементы столбцов            
             for (int i = 0; i < Inputs[0].X.M; i++)
             {
-                double min = Inputs[0].X[i];
-                double max = Inputs[0].X[i];
-                for (int k = 0; k < Inputs.Length - 2; k++)
+                double min = Xmins[i];
+                double max = Xmaxs[i];
+                for (int k = 0; k < Inputs.Length; k++)
                 {
                     min = (min < Inputs[k].X[i]) ? min : Inputs[k].X[i];
                     max = (max > Inputs[k].X[i]) ? max : Inputs[k].X[i];
                 }
-                Inputs[Inputs.Length - 1].X[i] = max;
-                Inputs[Inputs.Length - 2].X[i] = min;
+                Xmaxs[i] = max;
+                Xmins[i] = min;
             }
             for (int i = 0; i < Inputs[0].Y.M; i++)
             {
-                double min = Inputs[0].Y[i];
-                double max = Inputs[0].Y[i];
-                for (int k = 0; k < Inputs.Length - 2; k++)
+                double min = Ymins[i];
+                double max = Ymaxs[i];
+                for (int k = 0; k < Inputs.Length ; k++)
                 {
                     min = (min < Inputs[k].Y[i]) ? min : Inputs[k].Y[i];
                     max = (max > Inputs[k].Y[i]) ? max : Inputs[k].Y[i];
                 }
-                Inputs[Inputs.Length - 1].Y[i] = max;
-                Inputs[Inputs.Length - 2].Y[i] = min;
+                Ymaxs[i] = max;
+                Ymins[i] = min;
             }
-            Xmins = Inputs[Inputs.Length - 2].X;
-            Xmaxs = Inputs[Inputs.Length - 1].X;
-
-            Ymins = Inputs[Inputs.Length - 2].Y;
-            Ymaxs = Inputs[Inputs.Length - 1].Y;
+            
 
         }
 
         private void NormalizeInputTable()
         {
-            for(int k = 0; k < Inputs.Length-2; k++)
+            for(int k = 0; k < Inputs.Length; k++)
             {                
                 NormalizeVector(Inputs[k].X, Xmins, Xmaxs);
                 NormalizeVector(Inputs[k].Y, Ymins, Ymaxs);
