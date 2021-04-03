@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace NeuralNetwork.Neural
@@ -35,12 +36,13 @@ namespace NeuralNetwork.Neural
         {
 
             //Вычисление среднеквадратичной ошибки
-            error = 0;
+            //error = 0;
             for (int i = 0; i < output.M; i++)
             {
                 double e = LayerArray[HiddenLayerCount].OutputSygnals[i] - output[i];
                 localGradients[HiddenLayerCount][i] = e * LayerArray[HiddenLayerCount].dOutputSygnals[i];
-                error += e * e / 2;
+                error += (e * e) / 2;
+                //error += e;
             }
             //Вычисление локальных градиентов
             for (int l = HiddenLayerCount; l > 0; l--)
@@ -88,40 +90,40 @@ namespace NeuralNetwork.Neural
         }
 
         
-        
-
-        public IEnumerable<double> Train(Vector[] X, Vector[] Y, double alpha, double teta, double epsilon, int epochs)
-        {
-            int epoch = 1;
-            double error = 0;
-            do
-            {
-                for (int i = 0; i < X.Length; i++)
-                {
-                    Forward(X[i]);
-                    Backward(Y[i], ref error);
-                    UpdateWeights(0, teta, X[i]);
-                }
-                epoch++;
-                yield return error;
-            } while (epoch <= epochs && error > epsilon);
-        }
-
+        Random rand = new Random();
         public IEnumerable<double> Train(VectorPair[] XY, double alpha, double teta, double epsilon, int epochs)
         {
+
+            
+            int[] indexes = Enumerable.Range(0, XY.Length).ToArray();
+            
             int epoch = 1;
             double error = 0;
             do
             {
-                for (int i = 0; i < XY.Length; i++)
+                error = 0;
+                //Shuffle
+                for(int i = XY.Length-1; i>0; i--)
                 {
-                    Forward(XY[i].X);
-                    Backward(XY[i].Y, ref error);
-                    UpdateWeights(0, teta, XY[i].X);
+                    int j = rand.Next(i + 1);
+                    int temp = indexes[j];
+                    indexes[j] = indexes[i];
+                    indexes[i] = temp;
                 }
+                
+                //tempR =(MultiLayerPerceptron) this.MemberwiseClone();
+                for (int cx = 0; cx < indexes.Length; cx++)
+                {
+                    Forward(XY[indexes[cx]].X);
+                    Backward(XY[indexes[cx]].Y, ref error);
+                    //UpdateWeights(0, teta, XY[indexes[cx]].X);
+                    UpdateWeights(alpha, teta, XY[indexes[cx]].X);
+                }
+                //previous = (MultiLayerPerceptron)tempR.MemberwiseClone();
+                
                 epoch++;
                 yield return error;
-            } while (epoch <= epochs && error > epsilon);
+            } while (epoch <= epochs && (error > epsilon ));
         }
 
 
@@ -152,6 +154,7 @@ namespace NeuralNetwork.Neural
                 LayerArray[i].FillRandomly();
             }
         }
+
 
 
         public string PrintNet()

@@ -91,10 +91,10 @@ namespace NeuralNetwork.Forms
             
             double teta = Convert.ToDouble(numericUpDown1.Value);
             double epsilon = Convert.ToDouble(numericUpDown2.Value);
-            var tempo = perceptron.Train(Inputs, teta, teta, epsilon, 10000);
+            var tempo = perceptron.Train(Inputs, 0.1f, teta, epsilon, 10000);
             int i = 0;
             foreach (var x in tempo)
-            {                
+            {
                 textBox2.Text += "Эпоха: " + (++i) + "; Среднекв. ошибка: " + x.ToString() + "\r\n";
             }
             textBox2.Text += perceptron.PrintNet();
@@ -161,8 +161,8 @@ namespace NeuralNetwork.Forms
                     min = (min < Inputs[k].X[i]) ? min : Inputs[k].X[i];
                     max = (max > Inputs[k].X[i]) ? max : Inputs[k].X[i];
                 }
-                Xmaxs[i] = max;
-                Xmins[i] = min;
+                Xmaxs[i] = max ;
+                Xmins[i] = min ;
             }
             for (int i = 0; i < Inputs[0].Y.M; i++)
             {
@@ -173,8 +173,8 @@ namespace NeuralNetwork.Forms
                     min = (min < Inputs[k].Y[i]) ? min : Inputs[k].Y[i];
                     max = (max > Inputs[k].Y[i]) ? max : Inputs[k].Y[i];
                 }
-                Ymaxs[i] = max;
-                Ymins[i] = min;
+                Ymaxs[i] = max ;
+                Ymins[i] = min ;
             }
             
 

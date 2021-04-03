@@ -20,7 +20,7 @@ namespace NeuralNetwork.Neural
                 OutputSygnals[i] = 1 / (1 + Math.Exp(-OutputSygnals[i]));
 
                 //doutputs - производные от выходов слоя
-                dOutputSygnals[i] = OutputSygnals[i] * (1 - OutputSygnals[i]);
+                dOutputSygnals[i] = OutputSygnals[i] * (1 - OutputSygnals[i]) ;
             }
 
             
@@ -45,6 +45,16 @@ namespace NeuralNetwork.Neural
                 for (int k = 0; k < WeightMatrix.N; k++)
                 {
                     WeightMatrix[i, k] = random.NextDouble() * 2 - 1;
+                }
+            }
+        }
+        public void Nullate()
+        {
+            for (int i = 0; i < WeightMatrix.M; i++)
+            {
+                for (int k = 0; k < WeightMatrix.N; k++)
+                {
+                    WeightMatrix[i, k] = 0;
                 }
             }
         }
