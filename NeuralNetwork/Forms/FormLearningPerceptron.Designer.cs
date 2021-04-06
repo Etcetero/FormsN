@@ -96,20 +96,20 @@ namespace NeuralNetwork.Forms
             0,
             0,
             196608});
-            this.numericUpDown1.Location = new System.Drawing.Point(284, 17);
+            this.numericUpDown1.Location = new System.Drawing.Point(275, 17);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             1,
             0,
             0,
             0});
             this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(60, 23);
+            this.numericUpDown1.Size = new System.Drawing.Size(69, 23);
             this.numericUpDown1.TabIndex = 5;
             this.numericUpDown1.Value = new decimal(new int[] {
-            5,
+            25,
             0,
             0,
-            65536});
+            131072});
             // 
             // label1
             // 
@@ -131,20 +131,20 @@ namespace NeuralNetwork.Forms
             // 
             // numericUpDown2
             // 
-            this.numericUpDown2.DecimalPlaces = 4;
+            this.numericUpDown2.DecimalPlaces = 6;
             this.numericUpDown2.Increment = new decimal(new int[] {
             1,
             0,
             0,
             262144});
-            this.numericUpDown2.Location = new System.Drawing.Point(284, 51);
+            this.numericUpDown2.Location = new System.Drawing.Point(275, 51);
             this.numericUpDown2.Maximum = new decimal(new int[] {
             1,
             0,
             0,
             0});
             this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(60, 23);
+            this.numericUpDown2.Size = new System.Drawing.Size(69, 23);
             this.numericUpDown2.TabIndex = 8;
             this.numericUpDown2.Value = new decimal(new int[] {
             5,

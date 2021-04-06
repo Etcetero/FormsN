@@ -12,6 +12,7 @@ namespace NeuralNetwork.Neural
         public int OutCount;
         public int HiddenNeuronCount;
         public int HiddenLayerCount;
+        double b;
 
         double error;
         //Массив слоёв сети
@@ -24,10 +25,11 @@ namespace NeuralNetwork.Neural
         {
             //Рассчитваем выходные сигналы для первого слоя
             LayerArray[0].SigmoidalActivate(InputSygnals);
-            for(int i = 1; i< LayerArray.Length; i++)
+            for(int i = 1; i< LayerArray.Length-1; i++)
             {
                 LayerArray[i].SigmoidalActivate(LayerArray[i - 1].OutputSygnals);                
             }
+            LayerArray[LayerArray.Length - 1].SigmoidalActivate(LayerArray[LayerArray.Length - 2].OutputSygnals, 1f);
             return LayerArray[LayerArray.Length - 1].OutputSygnals;
         }
 
@@ -44,10 +46,11 @@ namespace NeuralNetwork.Neural
                 error += (e * e) / 2;
                 //error += e;
             }
+            
             //Вычисление локальных градиентов
             for (int l = HiddenLayerCount; l > 0; l--)
             {                
-                for(int j = 0; j < LayerArray[l].WeightMatrix.N; j++)
+                for(int j = 0; j < LayerArray[l].WeightMatrix.N-1; j++)
                 {
                     localGradients[l - 1][j] = 0;
                     for (int k = 0; k < LayerArray[l].WeightMatrix.M; k++)
@@ -58,45 +61,43 @@ namespace NeuralNetwork.Neural
                 }
             }
             
+            
         }
 
         public void UpdateWeights(double alpha, double teta, Vector Input)
         {
-
-            for (int i = 0; i < LayerArray[0].WeightMatrix.N; i++)
+            for (int i = 0; i < LayerArray[0].WeightMatrix.M; i++)
             {
-                for (int j = 0; j < LayerArray[0].WeightMatrix.M; j++)
+                for (int j = 0; j < LayerArray[0].WeightMatrix.N-1; j++)
                 {
-                    //LayerArray[0].WeightMatrix[j, i] =
-                    //        LayerArray[0].WeightMatrix[j, i] +
-                    //        teta * localGradients[0][j] * Input[i];
-                    LayerArray[0].WeightMatrix[j, i] -= teta * localGradients[0][j] * Input[i];
+                    LayerArray[0].WeightMatrix[i, j] -= teta * localGradients[0][i] * Input[j];
                 }
+                //Корректировка веса смещения
+                LayerArray[0].WeightMatrix[i, LayerArray[0].WeightMatrix.N - 1] -= teta * localGradients[0][i] * LayerArray[0].b;
             }
+            
 
             for (int k = 1; k <= HiddenLayerCount; k++)
             {
-                for(int i = 0; i < LayerArray[k].WeightMatrix.N; i++)
+                for(int i = 0; i < LayerArray[k].WeightMatrix.M; i++)
                 {
-                    for (int j = 0; j < LayerArray[k].WeightMatrix.M; j++)
+                    for (int j = 0; j < LayerArray[k].WeightMatrix.N-1; j++)
                     {
-                        //LayerArray[k].WeightMatrix[j, i] =
-                        //        LayerArray[k].WeightMatrix[j, i] +
-                        //        teta * localGradients[k][j] * LayerArray[k-1].OutputSygnals[i];
-                        LayerArray[k].WeightMatrix[j, i] -= teta * localGradients[k][j] * LayerArray[k-1].OutputSygnals[i];
+                        LayerArray[k].WeightMatrix[i, j] -= teta * localGradients[k][i] * LayerArray[k-1].OutputSygnals[j];
                     }
+                    //Корректировка веса смещения
+                    LayerArray[k].WeightMatrix[i, LayerArray[k].WeightMatrix.N - 1] -= teta * localGradients[k][i] * LayerArray[k].b;
                 }
             }
+            ;
         }
 
-        
-        Random rand = new Random();
+
+        Random rand;
+        int[] indexes;
         public IEnumerable<double> Train(VectorPair[] XY, double alpha, double teta, double epsilon, int epochs)
         {
-
-            
-            int[] indexes = Enumerable.Range(0, XY.Length).ToArray();
-            
+            indexes = Enumerable.Range(0, XY.Length).ToArray();
             int epoch = 1;
             double error = 0;
             do
@@ -128,8 +129,10 @@ namespace NeuralNetwork.Neural
 
 
         //Конструктор
-        public MultiLayerPerceptron(int inCount, int outCount, int hiddenLayersCount, int neuronCount)
-        {
+        public MultiLayerPerceptron(int inCount, int outCount, int hiddenLayersCount, int neuronCount , double b)
+        {            
+            rand = new Random();
+            this.b = b;
             InputCount = inCount;
             OutCount = outCount;
             HiddenNeuronCount = neuronCount;
@@ -137,24 +140,28 @@ namespace NeuralNetwork.Neural
             LayerArray = new Layer[hiddenLayersCount+1];
             localGradients = new Vector[hiddenLayersCount + 1];
             //Первый слой отличается количеством весов, инициализируем его отдельно
-            LayerArray[0] = new Layer(neuronCount, inCount);
+            LayerArray[0] = new Layer(neuronCount, inCount, b);
             localGradients[0] = new Vector(neuronCount);
             //Инициализация слоёв
             for(int i = 1; i < hiddenLayersCount; i++)
             {
-                LayerArray[i] = new Layer(neuronCount, neuronCount);
+                LayerArray[i] = new Layer(neuronCount, neuronCount,b);
                 localGradients[i] = new Vector(neuronCount);
             }
             //Последний слой также отличается количеством нейронов
-            LayerArray[hiddenLayersCount] = new Layer(outCount, neuronCount);
+            LayerArray[hiddenLayersCount] = new Layer(outCount, neuronCount,b);
             localGradients[hiddenLayersCount] = new Vector(neuronCount);
             //Рандомно заполняем все веса всех слоев
             for (int i = 0; i <= hiddenLayersCount; i++)
             {
                 LayerArray[i].FillRandomly();
             }
+            
         }
-
+        public MultiLayerPerceptron(int inCount, int outCount, int hiddenLayersCount, int neuronCount) 
+            : this(inCount, outCount, hiddenLayersCount, neuronCount, 1.0f)
+        {
+        }
 
 
         public string PrintNet()

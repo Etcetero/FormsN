@@ -39,7 +39,7 @@ namespace NeuralNetwork.Forms
             //perceptron = new MultiLayerPerceptron(2, 1, 4, 3);
             //perceptron = new MultiLayerPerceptron(inC, outC, hiddenLC, neuronC);
             //perceptron.Train(X, Y, 0.5f, 0.5f, 0.005f, 10000000);
-            perceptron = new MultiLayerPerceptron(inCount, outCount, hiddenLayerCount, neuronCount);
+            perceptron = new MultiLayerPerceptron(inCount, outCount, hiddenLayerCount, neuronCount, 1.0f);
             InitializeComponent();
         }
 
@@ -91,7 +91,7 @@ namespace NeuralNetwork.Forms
             
             double teta = Convert.ToDouble(numericUpDown1.Value);
             double epsilon = Convert.ToDouble(numericUpDown2.Value);
-            var tempo = perceptron.Train(Inputs, 0.1f, teta, epsilon, 10000);
+            var tempo = perceptron.Train(Inputs, 0.1f, teta, epsilon, 2000);
             int i = 0;
             foreach (var x in tempo)
             {
